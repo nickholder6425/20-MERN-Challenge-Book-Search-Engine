@@ -1,63 +1,57 @@
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import SearchBooks from "./pages/SearchBooks";
-import SavedBooks from "./pages/SavedBooks";
-import Navbar from "./components/Navbar";
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  createHttpLink,
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-
-// establish new link to GraphQL server at /graphql endpoint
-const httpLink = createHttpLink({
-  // absolute path to server, uniform resource identifier
-  // uri: "http://localhost:3001/graphql"
-  uri: "/graphql",
-});
-
-// omit first param (current request obj) in case fx is running after we've initiated request
-const authLink = setContext((_, { headers }) => {
-  // retrieve token from localStorage
-  const token = localStorage.getItem("id_token");
-  return {
-    // set HTTP request headers of every request to include token
-    // whether request needs or not, if doesn't need token, server-side resolver won't check for it
+// route to get logged in user's info (needs the token)
+export const getMe = (token) => {
+  return fetch('/api/users/me', {
     headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${token}`,
     },
-  };
-});
+  });
+};
 
-// instantiate ApolloClient instance, create connection to API endpoint
-const client = new ApolloClient({
-  // combine authLink and httpLink obj so
-  // every request retrieves token and sets request headers before making request to API
-  link: authLink.concat(httpLink),
-  // instantiate new cache obj
-  cache: new InMemoryCache(),
-});
+export const createUser = (userData) => {
+  return fetch('/api/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+};
 
-function App() {
-  return (
-    // pass in client variable as value for client prop in provider
-    // everything between ApolloProvider tags have access to server's API data through client
-    <ApolloProvider client={client}>
-      <Router>
-        <>
-          <Navbar />
-          <Switch>
-            <Route exact path="/" component={SearchBooks} />
-            <Route exact path="/saved" component={SavedBooks} />
-            <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
-          </Switch>
-        </>
-      </Router>
-    </ApolloProvider>
-  );
-}
+export const loginUser = (userData) => {
+  return fetch('/api/users/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+};
 
-export default App;
+// save book data for a logged in user
+export const saveBook = (bookData, token) => {
+  return fetch('/api/users', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(bookData),
+  });
+};
+
+// remove saved book data for a logged in user
+export const deleteBook = (bookId, token) => {
+  return fetch(`/api/users/books/${bookId}`, {
+    method: 'DELETE',
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// make a search to google books api
+// https://www.googleapis.com/books/v1/volumes?q=harry+potter
+export const searchGoogleBooks = (query) => {
+  return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
+};
