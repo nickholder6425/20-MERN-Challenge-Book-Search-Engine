@@ -36,6 +36,8 @@ Run the following command on your CLI to run the application:
 
 [Mongoose](https://www.npmjs.com/package/mongoose)
 
+[Deploy with Render](https://coding-boot-camp.github.io/full-stack/mongodb/deploy-with-render-and-mongodb-atlas)
+
 [Starter Code](https://github.com/coding-boot-camp/solid-broccoli)
 
 [GitHub Challenge Example](https://github.com/njthanhtrang/21.-MERN-Challenge-Book-Search-Engine/tree/main)
